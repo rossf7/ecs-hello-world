@@ -1,0 +1,11 @@
+client:
+  build: .
+  env_file:
+    - .env
+  command: bundle exec rake hello:client['hello world!']
+
+server:
+  build: .
+  env_file:
+    - .env
+  command: bundle exec rake hello:server
