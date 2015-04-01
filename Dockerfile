@@ -1,5 +1,5 @@
 FROM ruby:2.1.5
-MAINTAINER Ross Fairbanks "ross.fairbanks@gmail.com"
+MAINTAINER Ross Fairbanks "ross@rossfairbanks.com"
 
 RUN apt-get update
 
@@ -17,3 +17,6 @@ ADD . /app
 RUN chown -R app:app /app
 
 USER app
+
+# Default to starting the server
+CMD ["bundle", "exec", "rake", "hello:server"]

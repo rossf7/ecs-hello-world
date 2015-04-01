@@ -14,6 +14,8 @@ namespace :hello do
   desc 'Simple client that posts messages to a queue'
   task :client, [:message] => :dotenv do |task, args|
     message = args[:message]
+
+    startup_message('Sending to')
     client = Client.new
 
     # Send messages in an infinite loop
@@ -30,6 +32,7 @@ namespace :hello do
 
   desc 'Simple server that polls the queue for messages'
   task :server => :dotenv do
+    startup_message('Receiving from')
     server = Server.new
 
     # Poll for messages in an infinite loop
@@ -55,5 +58,9 @@ private
   def display_error(e)
     puts "Error: #{e.message}"
     puts e.backtrace
+  end
+
+  def startup_message(state)
+    puts "#{state} SQS queue #{ENV['SQS_ENDPOINT']}"
   end
 end
