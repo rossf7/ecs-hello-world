@@ -1,6 +1,6 @@
-# Simple server that polls a SQS queue for messages, displays the
+# Simple Worker server that polls a SQS queue for messages, displays the
 # contents and deletes the message.
-class Server
+class Worker
   # Display dates nicely
   DATE_FORMAT = '%e %b %Y %H:%M:%S %z'
 
@@ -26,14 +26,14 @@ class Server
   def process_message(message)
     display_message(message.message_id, message.body)
 
-    sqs = Aws::SQS::Client.new(region: ENV['AWS_REGION'])
+    sqs = Aws::SQS::Client.new
     sqs.delete_message(queue_url: ENV['SQS_ENDPOINT'],
                        receipt_handle: message.receipt_handle)
   end
 
   # Polls the SQS queue and processes the first message in the queue.
   def receive_message
-    sqs = Aws::SQS::Client.new(region: ENV['AWS_REGION'])
+    sqs = Aws::SQS::Client.new
     resp = sqs.receive_message(queue_url: ENV['SQS_ENDPOINT'])
 
     if resp.messages.count > 0
