@@ -1,24 +1,21 @@
-require 'bundler'
-
-ENV['RACK_ENV'] ||= 'development'
-
-Bundler.require :default, ENV['RACK_ENV'].to_sym
-Dotenv.load
-
-require 'dotenv/tasks'
-
 require 'time'
 require 'socket'
 
+require 'rubygems'
+require 'rake'
+require 'dotenv/tasks'
+require 'aws-sdk'
+require 'json'
+
 require_relative 'client'
-require_relative 'worker'
+require_relative 'server'
 
 namespace :hello do
   desc 'Simple client that posts messages to a queue'
   task :client, [:message] => :dotenv do |task, args|
     message = args[:message]
 
-    startup_message('Sending to', ENV['API_ENDPOINT'])
+    startup_message('Sending to')
     client = Client.new
 
     # Send messages in an infinite loop
@@ -33,15 +30,15 @@ namespace :hello do
     end
   end
 
-  desc 'Simple worker server that polls the queue for messages'
-  task :worker => :dotenv do
-    startup_message('Receiving from', ENV['SQS_ENDPOINT'])
-    worker = Worker.new
+  desc 'Simple server that polls the queue for messages'
+  task :server => :dotenv do
+    startup_message('Receiving from')
+    server = Server.new
 
     # Poll for messages in an infinite loop
     loop do
       begin
-        worker.receive_message
+        server.receive_message
         wait_millis
 
       rescue StandardError => e
@@ -63,7 +60,7 @@ private
     puts e.backtrace
   end
 
-  def startup_message(state, endpoint)
-    puts "#{state} #{endpoint}"
+  def startup_message(state)
+    puts "#{state} SQS queue #{ENV['SQS_ENDPOINT']}"
   end
 end
